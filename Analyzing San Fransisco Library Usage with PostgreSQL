@@ -1,0 +1,62 @@
+-- Data from Kaggle and SF Public Library
+
+-- Exploratory analysis of data
+-- What is the total number of users (rows) in the database?
+Select count(patroncode) from sflib 
+-- 423,448 users
+
+-- Find the range of years the database encompasses
+select distinct yearregistered from sflib
+-- database spans from 2003 to 2006
+
+-- Find all the distinct library branches
+select distinct homelibdef from sflib
+
+-- How many unique patron codes are there?
+Select count(Distinct patroncode) from sflib
+-- 18 patron codes
+
+-- Find the home library, year registered, and patron type of all adult patrons
+Select homelibdef, yearregistered, patrontype from sflib
+where patrontype = 'ADULT'
+
+-- exploratory analysis
+-- the database doesn't have a columnn that identifies each user by a library number or patron ID. Let's make one:
+add column assigning a patron id to each column
+alter table sflib
+
+add column patronid INTEGER;
+create sequence patronidseq;
+update sflib  
+  set patronid = nextval('patronidseq');
+drop sequence patronidseq;
+
+-- find total number of checkouts that are over 1,000 checkouts
+select * from sflib
+where totalcheckouts > 1000
+
+-- Within the last 5 years, how many people in each year have made a library account? 
+select distinct avg(totalcheckouts), patrontype  from sflib
+where yearregistered between '2010' and '2015'
+GROUP by patrontype
+
+-- What is the average number of check outs and renewals by patron type within the last 5 years?
+select distinct avg(totalcheckouts), patrontype  from sflib
+where yearregistered between '2010' and '2015'
+GROUP by patrontype
+
+-- What is the total number of books checked out by each patron type?
+select distinct patrontype, sum(totalcheckouts) from sflib
+group by patrontype
+order by sum(totalcheckouts) DESC
+
+-- Find the top 10 library users with the most total checkouts
+select sum(totalcheckouts), patronid
+from sflib
+group by patronid
+order by sum(totalcheckouts) DESC
+Limit 10
+
+
+
+
